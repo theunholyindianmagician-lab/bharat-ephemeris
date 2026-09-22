@@ -524,11 +524,16 @@
     return Math.floor(mod360(longitude) / 30) % 12;
   }
 
+  const VARGA_EPSILON = 1e-10;
   function computeVarga(longitude, code) {
     const l = mod360(longitude);
     const r = signIndex(l);
     const d = l - r * 30;
-    const part = (divisor) => Math.min(divisor - 1, Math.floor(d * divisor / 30));
+    const part = (divisor) => {
+      const arc = 30 / divisor;
+      const rawIndex = Math.floor((d + VARGA_EPSILON) / arc);
+      return Math.min(divisor - 1, Math.max(0, rawIndex));
+    };
     let result;
     if (code === "D1") result = r;
     else if (code === "D2") result = r % 2 === 0 ? (d < 15 ? 4 : 3) : (d < 15 ? 3 : 4);
@@ -2817,15 +2822,36 @@
     // 2. Ekadhipatya Shodhana
     const ekadhipatya = Array.from(trikona);
     const dualPairs = [[0, 7], [1, 6], [2, 5], [8, 11], [9, 10]]; // Mars, Venus, Merc, Jup, Sat
+
+    const isOccupied = (r) => Object.values(grahaPositions).some(
+      pos => typeof pos === 'number' && !isNaN(pos) && Math.floor(((pos % 360) + 360) % 360 / 30) === r
+    );
+
     for (const [r1, r2] of dualPairs) {
       if (ekadhipatya[r1] === 0 || ekadhipatya[r2] === 0) continue;
-      if (ekadhipatya[r1] === ekadhipatya[r2]) {
-        ekadhipatya[r1] = 0;
-        ekadhipatya[r2] = 0;
-      } else if (ekadhipatya[r1] > ekadhipatya[r2]) {
-        ekadhipatya[r1] = ekadhipatya[r2];
+      
+      const occ1 = isOccupied(r1);
+      const occ2 = isOccupied(r2);
+
+      if (occ1 && occ2) {
+        continue;
+      } else if (!occ1 && !occ2) {
+        if (ekadhipatya[r1] === ekadhipatya[r2]) {
+          ekadhipatya[r1] = 0;
+          ekadhipatya[r2] = 0;
+        } else if (ekadhipatya[r1] > ekadhipatya[r2]) {
+          ekadhipatya[r1] = ekadhipatya[r2];
+        } else {
+          ekadhipatya[r2] = ekadhipatya[r1];
+        }
       } else {
-        ekadhipatya[r2] = ekadhipatya[r1];
+        const o = occ1 ? r1 : r2;
+        const u = occ1 ? r2 : r1;
+        if (ekadhipatya[o] >= ekadhipatya[u]) {
+          ekadhipatya[u] = 0;
+        } else {
+          ekadhipatya[u] = ekadhipatya[o];
+        }
       }
     }
 
