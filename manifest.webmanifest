@@ -1,0 +1,72 @@
+{
+  "name": "BHARAT EPHEMERIS OBSERVATORY — Celestial Navigation & Panchanga",
+  "short_name": "BharatEphemeris",
+  "description": "High-precision Drik-Panchanga, Shoonya Bheda astronomical calculations & sacred research observatory operating 100% offline.",
+  "start_url": "index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070c18",
+  "theme_color": "#00d8f6",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Observatory Home",
+      "short_name": "Home",
+      "url": "index.html",
+      "description": "Main Celestial Observatory & Live Sky Map"
+    },
+    {
+      "name": "Drik Panchang",
+      "short_name": "Panchang",
+      "url": "panchang.html",
+      "description": "High-Precision Drik-Panchanga Engine"
+    },
+    {
+      "name": "Shoonya Bheda",
+      "short_name": "ShoonyaBheda",
+      "url": "shunyabheda.html",
+      "description": "Shoonya Bheda Mathematical Analysis Suite"
+    },
+    {
+      "name": "Sovereign Dashboard",
+      "short_name": "Dashboard",
+      "url": "shoonya_sovereign_dashboard.html",
+      "description": "Sovereign Observatory Control & Telemetry"
+    },
+    {
+      "name": "Sacred Museum",
+      "short_name": "Museum",
+      "url": "museum.html",
+      "description": "Observatory Museum & Artifact Gallery"
+    },
+    {
+      "name": "Research Library",
+      "short_name": "Library",
+      "url": "library.html",
+      "description": "Ephemeris Sacred Research Library"
+    },
+    {
+      "name": "Chart Reports",
+      "short_name": "Reports",
+      "url": "reports.html",
+      "description": "Order personalized Kundali analysis reports"
+    }
+  ],
+  "categories": ["education", "science", "utilities"]
+}

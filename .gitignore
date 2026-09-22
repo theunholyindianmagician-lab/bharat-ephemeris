@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.next/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Scratch files
+scratch/
+*.log
+
+# Agent workspace files
+.agents/
+skills-lock.json
+
+# Generated test/verification data
+release-verification-report.json
+output/
+
+# Sample client reports (not part of website)
+*_Report.html
+*_Report.pdf
+*_Forensic_Report.html
+*_Forensic_Report.pdf
+*_Matching_Report.pdf
+
+# Sub-projects (separate repos)
+Kamakhya_Origin_Cosmic_Engine/
+Kimi_Agent_Moon_Note_Webapp/
+book-generator-engine/
+ai-publisher-engine/
+insta_film_project/
+world_class_observatory/
+studio_output/
+files-64ed874a/
+videos/
+
+# Python research engines (not part of web deployment)
+*.py
+sacred_bharat_results.json
+Kaal_Sacred_Research_Master_List.md
+
+# Misc
+-c

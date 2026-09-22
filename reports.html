@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="hi" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Premium Reports | Bharat Ephemeris</title>
+    <meta name="description" content="Order premium Vedic astrological reports. Forensic Deep Dive and Cosmic Architecture Kundali analysis.">
+    <meta name="theme-color" content="#03060e">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="global.css?v=108">
+    <style>
+        :root {
+            --bg: #03060e;
+            --panel: rgba(8,13,25,0.65);
+            --cyan: #8af0ff;
+            --gold: #f5d68b;
+            --green: #6dffba;
+            --ink: #eef2ff;
+            --soft: #8a90a8;
+            --border: rgba(138,240,255,0.12);
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        header.page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .page-header h1 {
+            color: var(--gold);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(245, 214, 139, 0.2);
+        }
+        .page-header p {
+            color: var(--soft);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        @media (min-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+        }
+        
+        .pricing-card {
+            background: var(--panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(138, 240, 255, 0.1);
+            border-color: rgba(138,240,255,0.3);
+        }
+        
+        .card-recommended {
+            border: 1px solid rgba(245, 214, 139, 0.3);
+            box-shadow: 0 0 20px rgba(245, 214, 139, 0.05);
+        }
+        .card-recommended:hover {
+            box-shadow: 0 10px 30px rgba(245, 214, 139, 0.15);
+            border-color: rgba(245, 214, 139, 0.5);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: #000;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+        }
+        .card-recommended .card-title {
+            color: var(--gold);
+        }
+        
+        .card-price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--ink);
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+        .card-price span {
+            font-size: 1rem;
+            color: var(--soft);
+            font-weight: 400;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2.5rem 0;
+            flex-grow: 1;
+        }
+        .feature-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.75rem;
+            position: relative;
+            color: var(--ink);
+        }
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+            font-weight: bold;
+        }
+        .card-recommended .feature-list li::before {
+            color: var(--gold);
+        }
+        
+        .btn-order {
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(138, 240, 255, 0.1);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .btn-order:hover {
+            background: var(--cyan);
+            color: #000;
+        }
+        
+        .card-recommended .btn-order {
+            background: rgba(245, 214, 139, 0.1);
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+        .card-recommended .btn-order:hover {
+            background: var(--gold);
+            color: #000;
+        }
+        
+        .upi-section {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--soft);
+        }
+
+        /* Order Form */
+        .order-section {
+            background: var(--panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 4rem;
+        }
+        .order-section h2 {
+            color: var(--cyan);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .form-group label {
+            color: var(--soft);
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(138,240,255,0.2);
+            color: var(--ink);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--cyan);
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            margin-bottom: 4rem;
+        }
+        .faq-section h2 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .faq-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .faq-item h3 {
+            color: var(--cyan);
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        .faq-item p {
+            color: var(--soft);
+            margin: 0;
+        }
+        
+        /* Footer/Social */
+        .social-footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+            color: var(--soft);
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .social-links a {
+            color: var(--cyan);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .social-links a:hover {
+            color: var(--gold);
+        }
+    </style>
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Forensic Deep Dive Astrological Report",
+      "description": "Complete 16 Divisional Charts, Ashtakavarga analysis, Shadbala, and Multi-chart synthesis.",
+      "offers": {
+        "@type": "Offer",
+        "price": "3999",
+        "priceCurrency": "INR",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+</head>
+<body>
+    <nav id="main-nav" aria-label="Main Navigation">
+        <!-- populated by edition-nav-enhancer.js -->
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>Premium Astrological Reports</h1>
+            <p>प्रीमियम ज्योतिषीय रिपोर्ट | Deep structural insights into your cosmic architecture.</p>
+        </header>
+
+        <section class="order-section" id="order-form-section">
+            <h2>Birth Details / जन्म विवरण</h2>
+            <p style="text-align: center; color: var(--soft); margin-bottom: 2rem;">Please fill in these details, which will be included in your WhatsApp order message.</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="fullName">Full Name / पूरा नाम</label>
+                    <input type="text" id="fullName" placeholder="e.g. Rahul Sharma" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth / जन्म तिथि</label>
+                    <input type="date" id="dob">
+                </div>
+                <div class="form-group">
+                    <label for="tob">Time of Birth / जन्म समय</label>
+                    <input type="time" id="tob">
+                </div>
+                <div class="form-group">
+                    <label for="pob">Place of Birth / जन्म स्थान</label>
+                    <input type="text" id="pob" placeholder="City, State, Country">
+                </div>
+            </div>
+        </section>
+
+        <section class="pricing-grid">
+            <!-- Card 1 -->
+            <div class="pricing-card">
+                <h3 class="card-title">Cosmic Architecture</h3>
+                <div class="card-price">₹999 <span>/ report</span></div>
+                <ul class="feature-list">
+                    <li>Complete birth chart (Kundali) analysis</li>
+                    <li>D1, D9, D10 divisional charts</li>
+                    <li>Nakshatra, Tithi, Yoga analysis</li>
+                    <li>Vimshottari Dasha timeline</li>
+                    <li>Basic planetary strength overview</li>
+                    <li>Delivered as premium PDF within 24 hours</li>
+                </ul>
+                <a href="#" class="btn-order whatsapp-link" data-report="Cosmic Architecture" data-price="999">Order Now via WhatsApp</a>
+                <div class="upi-section">
+                    UPI Payment accepted via WhatsApp link
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="pricing-card card-recommended">
+                <div class="badge">Most Popular</div>
+                <h3 class="card-title">Forensic Deep Dive</h3>
+                <div class="card-price">₹3,999 <span>/ report</span></div>
+                <ul class="feature-list">
+                    <li>Complete 16 Divisional Charts (Shodashavarga D1 to D60)</li>
+                    <li>Ashtakavarga analysis with bindus</li>
+                    <li>Shadbala 6-fold planetary strength</li>
+                    <li>Vimshottari + Yogini Dasha systems</li>
+                    <li>Graha Yuddha (planetary war) analysis</li>
+                    <li>Kerala Drik-Ganita cross-verification</li>
+                    <li>Full ShoonyaBheda validation audit</li>
+                    <li>Multi-chart synthesis with personalized insights</li>
+                    <li>Delivered as premium bilingual PDF within 48 hours</li>
+                </ul>
+                <a href="#" class="btn-order whatsapp-link" data-report="Forensic Deep Dive" data-price="3999">Order Now via WhatsApp</a>
+                <div class="upi-section">
+                    UPI Payment accepted via WhatsApp link
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>Is it accurate? / क्या यह सटीक है?</h3>
+                <p>Yes, we use high-precision Kerala Drik-Ganita ephemeris models verified with Swiss Ephemeris data to ensure absolute mathematical precision in all charts.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How is it delivered? / रिपोर्ट कैसे मिलेगी?</h3>
+                <p>The report will be sent directly to your WhatsApp and Email as a beautifully formatted, premium PDF document within the promised timeline (24 to 48 hours depending on the tier).</p>
+            </div>
+            <div class="faq-item">
+                <h3>What do I need to provide? / मुझे क्या जानकारी देनी होगी?</h3>
+                <p>We need your exact Date of Birth, Time of Birth (as accurate as possible), and Place of Birth (City and State/Country). You can fill these details in the form above before clicking order.</p>
+            </div>
+        </section>
+
+        <footer class="social-footer">
+            <p>Connect with us on Instagram for daily cosmic insights</p>
+            <div class="social-links">
+                <a href="https://instagram.com/theunholyindianmagician" target="_blank" rel="noopener">@theunholyindianmagician</a>
+                <a href="https://instagram.com/astro_laksha" target="_blank" rel="noopener">@astro_laksha</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const phone = "919999999999";
+            
+            document.querySelectorAll('.whatsapp-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const reportName = link.getAttribute('data-report');
+                    const price = link.getAttribute('data-price');
+                    
+                    const name = document.getElementById('fullName').value.trim() || '[Name Not Provided]';
+                    const dob = document.getElementById('dob').value || '[DOB Not Provided]';
+                    const tob = document.getElementById('tob').value || '[Time Not Provided]';
+                    const pob = document.getElementById('pob').value.trim() || '[Place Not Provided]';
+                    
+                    const text = `Namaste! I would like to order the *${reportName}* report (₹${price}).\n\nHere are my birth details:\nName: ${name}\nDOB: ${dob}\nTime: ${tob}\nPlace: ${pob}\n\nPlease share UPI payment details.`;
+                    
+                    const encodedText = encodeURIComponent(text);
+                    window.open(`https://wa.me/${phone}?text=${encodedText}`, '_blank');
+                });
+            });
+        });
+    </script>
+    
+    <!-- Required Scripts -->
+    <script src="global-ui.js"></script>
+    <script src="edition-nav-enhancer.js"></script>
+    <script>if("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+</body>
+</html>

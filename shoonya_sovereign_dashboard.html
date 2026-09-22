@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>शून्य वेधशाला HUD — नौ ग्रह जीवित · Bharat Ephemeris</title>
+  <meta name="description" content="शून्य वेधशाला HUD — phase-space में नौ ग्रह जीवित · हर अंक इसी browser में ShunyaMath से computed · दूसरे monitor का ambient यन्त्र · पूर्ण offline।">
+  <meta property="og:title" content="शून्य वेधशाला HUD — नौ ग्रह जीवित">
+  <meta property="og:description" content="Phase-space में नौ ग्रह · दूसरे monitor का ambient यन्त्र · हर अंक आपके browser में computed — बिना इंटरनेट।">
+  <meta property="og:image" content="/og/dashboard.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="global.css?v=107">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    /* ═══ DS-v2 visual layer (page-scoped) — one accent language: gold; cyan only for live markers ═══ */
+    :root {
+      /* legacy var remap → DS tokens (kills rainbow accents without touching markup/JS hooks) */
+      --gold-bright: var(--gold-strong);
+      --gold-soft: var(--gold);
+      --cyan-bright: var(--cyan);
+      --cyan-soft: var(--cyan);
+      --neon-emerald: var(--gold-strong);
+      --neon-rose: var(--gold-strong);
+      --font-mono: var(--mono);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { overflow-x: clip; }
+
+    /* ── sin #2: injected live dock (#page-live-strip) → quiet ribbon2, no boxes.
+       Inline styles from page-live.js are overridden here visually; script logic untouched. ── */
+    #page-live-strip {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      gap: .4em 1.6em !important;
+      margin: 14px auto 0 !important;
+      font: 500 .72rem var(--mono) !important;
+      letter-spacing: .06em;
+    }
+    #page-live-strip > div {
+      border: 0 !important;
+      background: none !important;
+      padding: 0 !important;
+      display: flex;
+      gap: .5em;
+      align-items: baseline;
+    }
+    #page-live-strip > div > span {
+      display: inline !important;
+      color: var(--dim) !important;
+      letter-spacing: .14em !important;
+      font-weight: 500;
+    }
+    #page-live-strip strong { color: var(--soft) !important; font-weight: 600; }
+
+    /* ── sin #2: cockpit strip → quiet ribbon2 pattern (dim, centered, no boxes) ── */
+    .nav-bar {
+      position: static;
+      border: 0;
+      background: transparent;
+      padding: 14px 16px 0;
+      display: flex;
+      justify-content: center;
+    }
+    .status-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .4em 1.6em;
+      font: 500 .74rem var(--mono);
+      letter-spacing: .06em;
+      color: var(--dim);
+    }
+    .badge-pill { padding: 0; border: 0; border-radius: 0; background: none; color: var(--dim); }
+    .badge-pill.gold { background: none; border: 0; color: var(--soft); }
+    .badge-pill.cyan { background: none; border: 0; color: var(--cyan); } /* live-compute marker */
+
+    .main-container {
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 0 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* ── sin #6: hero — compact .ds-hero for inner page ── */
+    .hud-head.ds-hero { padding: clamp(1.8rem, 4.5vh, 3rem) 0 1.4rem; }
+    .hud-head .ds-display { font-size: clamp(2rem, 4vw, 3rem); }
+    .hud-head .ds-kicker { display: block; margin-bottom: 16px; }
+    .hud-head .ds-sub { margin: 16px auto 0; }
+    .hud-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    /* ── sin #1: layered surface panels, no border-itis ── */
+    .glass-card {
+      background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+      border: 1px solid rgba(255, 255, 255, .045);
+      border-top-color: rgba(245, 214, 139, .14);
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+      padding: 20px 22px;
+    }
+    .glass-card:hover { border-top-color: rgba(245, 214, 139, .22); }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── sin #3: display numerals — this page IS the numbers ── */
+    .metric-title {
+      font: 500 .68rem var(--mono);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+    }
+    .metric-val.num-display { font-size: clamp(2.3rem, 4.6vw, 3.4rem); }
+    .metric-sub {
+      font: 500 .78rem var(--dev);
+      color: var(--soft);
+      margin-top: 8px;
+      letter-spacing: .03em;
+    }
+
+    /* ── sin #7: canvas center-stage — border off, glow instead ── */
+    .viewport-panel {
+      position: relative;
+      background: var(--surface-0);
+      border: 0;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 90px -18px rgba(245, 214, 139, .30), var(--shadow-soft);
+    }
+    .viewport-header {
+      padding: 14px 20px;
+      background: transparent;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: .8rem;
+    }
+
+    #telemetryCanvas {
+      width: 100%;
+      height: 480px;
+      display: block;
+      background: #02040a;
+      cursor: crosshair;
+    }
+
+    .control-bar {
+      padding: 14px 20px;
+      background: transparent;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: .78rem;
+    }
+    .ctrl-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ctrl-group label {
+      color: var(--dim);
+      font: 500 .68rem var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    /* ── sin #4: viz-mode buttons → .chip2 toggle-group, gold-only accent ── */
+    .shader-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5em;
+      padding: .42em .95em;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(245, 214, 139, .05);
+      box-shadow: inset 0 0 0 1px rgba(245, 214, 139, .16);
+      color: var(--soft);
+      font: 600 .76rem var(--dev);
+      letter-spacing: .03em;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+      outline: none;
+    }
+    .shader-btn:hover { background: rgba(245, 214, 139, .10); color: var(--gold); }
+    .shader-btn.active {
+      background: linear-gradient(180deg, #ffe9ae, #e8c87a);
+      color: #161006;
+      box-shadow: 0 6px 18px rgba(245, 214, 139, .25);
+    }
+
+    /* ── graha grid: serif gold tabular values ── */
+    .graha-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 14px 12px;
+    }
+    .graha-cell .g-name {
+      color: var(--dim);
+      font: 500 .66rem var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .graha-cell .g-val {
+      font-family: var(--ser);
+      font-variant-numeric: tabular-nums lining-nums;
+      font-weight: 600;
+      font-size: 1.3rem;
+      line-height: 1.25;
+      color: var(--gold-strong);
+    }
+    .graha-cell .g-sub { color: var(--dim); font: 500 .66rem var(--mono); margin-top: 2px; }
+    .graha-cell.hot .g-val { color: #ffe9ae; }
+
+    /* ── sin #2/#4: व्याख्या tooltip → quiet dashed link, no cyan box ── */
+    .hud-tip {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 0 0 1px;
+      border: 0;
+      border-bottom: 1px dashed rgba(245, 214, 139, .35);
+      border-radius: 0;
+      color: var(--dim);
+      font: 500 .72rem var(--dev);
+      letter-spacing: .05em;
+      cursor: help;
+      user-select: none;
+    }
+    .hud-tip:hover, .hud-tip:focus {
+      border-bottom-color: var(--gold);
+      color: var(--gold);
+      outline: none;
+    }
+    .hud-tip-text {
+      display: none;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-left: 2px solid rgba(245, 214, 139, .4);
+      border-bottom: 0;
+      background: var(--surface-0);
+      border-radius: 0 10px 10px 0;
+      color: var(--soft);
+      font: 400 .78rem/1.6 var(--dev);
+      letter-spacing: normal;
+      white-space: normal;
+      cursor: auto;
+    }
+    .hud-tip:hover .hud-tip-text, .hud-tip:focus .hud-tip-text { display: block; }
+
+    /* ── minimize control → small ghost variant (min-icons keeps it 20px top-right) ── */
+    .min-icons .btn-panel-minimize {
+      background: transparent;
+      border: 1px solid rgba(245, 214, 139, .22);
+      color: var(--dim);
+    }
+    .min-icons .btn-panel-minimize:hover {
+      background: rgba(245, 214, 139, .08);
+      color: var(--gold);
+      box-shadow: none;
+      font-weight: 400;
+    }
+
+    /* ── footer — quiet identity line ── */
+    .hud-foot {
+      max-width: 1350px;
+      margin: 6px auto 30px;
+      padding: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--line);
+      font: 500 .76rem var(--mono);
+      color: var(--dim);
+    }
+    .hud-foot a { color: var(--gold); text-decoration: none; }
+    .hud-foot a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      #telemetryCanvas { height: 360px; }
+      .metric-val.num-display { font-size: clamp(2rem, 9vw, 2.6rem); }
+    }
+  @media(max-width:768px){.ribbon2 span:nth-child(n+4), [data-ribbon-extra]{display:none}}
+</style>
+  <script src="global-ui.js?v=101"></script>
+  <script src="math-core.js?v=101"></script>
+  <script src="field-gl.js?v=113"></script>
+  <script src="page-live.js?v=107"></script>
+</head>
+<body class="utility-page min-icons">
+<a href="#main-content" class="skip-link sr-only focus:not-sr-only">Skip to main content</a>
+<nav class="bharat-nav" aria-label="Primary navigation">
+  <a href="index.html" class="bharat-brand">BHARAT EPHEMERIS</a>
+  <div class="bharat-links">
+    <a href="index.html" id="nav-home">HOME</a>
+    <a href="museum.html" id="nav-museum">MUSEUM</a>
+    <a href="library.html" id="nav-library">LIBRARY</a>
+    <a href="panchang.html" id="nav-panchang">PANCHANG</a>
+    <a href="shunyabheda.html" id="nav-engine">ENGINE</a>
+    <a href="shoonya_sovereign_dashboard.html" id="nav-dashboard" class="active" aria-current="page">DASHBOARD</a>
+  </div>
+</nav>
+  <header class="nav-bar" style="position:static;border:0;background:transparent">
+    <div class="status-badges">
+      <span class="badge-pill" id="fpsBadge">— FPS</span>
+      <span class="badge-pill gold" id="siteBadge">Ujjain 23.1765°N 75.7885°E · IST</span>
+      <span class="badge-pill cyan" id="coreBadge">ShunyaMath</span>
+    </div>
+  </header>
+
+  <main class="main-container" id="main-content" tabindex="-1">
+
+    <header class="hud-head ds-hero">
+      <span class="ds-kicker">◈ नौ ग्रह · जीवित PHASE-SPACE</span>
+      <h1 class="ds-display">शून्य वेधशाला<span class="en">OBSERVATORY HUD</span></h1>
+      <p class="hud-pos ds-sub">इसे दूसरे monitor पर चला छोड़ो — ambient यन्त्र · हर अंक इसी browser में ShunyaMath से computed, कोई server नहीं, कोई simulation नहीं।</p>
+      <div class="hud-cta">
+        <a class="btn-gold" href="panchang.html">आज का पञ्चाङ्ग →</a>
+        <a class="btn-ghost2" href="shunyabheda.html">शून्यभेद ENGINE</a>
+      </div>
+    </header>
+
+    <div class="metric-grid">
+      <div class="glass-card panel">
+        <button type="button" class="btn-panel-minimize" onclick="toggleSectionCollapse(this)">— Minimize</button>
+        <div class="panel-body-collapsible">
+          <div class="metric-title">1. सूर्य-स्फुट (Sūrya sphuṭa)</div>
+          <div class="metric-val num-display" id="suryaVal">—</div>
+          <div class="metric-sub" id="suryaSub">rāśi · Ujjain</div>
+          <span class="hud-tip" tabindex="0">व्याख्या<span class="hud-tip-text">स्फुट = निरयण भोगांश — मेष 0° से ग्रह की वास्तविक कोणीय स्थिति (चित्रा-पक्ष अयनांश)। सूर्य-स्फुट से ही राशि-मास व अयन गिने जाते हैं।</span></span>
+        </div>
+      </div>
+
+      <div class="glass-card panel">
+        <button type="button" class="btn-panel-minimize" onclick="toggleSectionCollapse(this)">— Minimize</button>
+        <div class="panel-body-collapsible">
+          <div class="metric-title">2. चन्द्र-स्फुट (Chandra sphuṭa)</div>
+          <div class="metric-val num-display" id="chandraVal">—</div>
+          <div class="metric-sub" id="chandraSub">nakṣatra · pada</div>
+          <span class="hud-tip" tabindex="0">व्याख्या<span class="hud-tip-text">चन्द्र-स्फुट से नक्षत्र मिलता है — 360° ÷ 27 = 13°20′ प्रति नक्षत्र, हर नक्षत्र के 4 पाद। चन्द्र सबसे तीव्र ग्रह है — तिथि इसी की सूर्य से दूरी (÷12°) से।</span></span>
+        </div>
+      </div>
+
+      <div class="glass-card panel">
+        <button type="button" class="btn-panel-minimize" onclick="toggleSectionCollapse(this)">— Minimize</button>
+        <div class="panel-body-collapsible">
+          <div class="metric-title">3. लग्न (Lagna)</div>
+          <div class="metric-val num-display" id="lagnaVal">—</div>
+          <div class="metric-sub" id="lagnaSub">rāśi · Ujjain horizon</div>
+          <span class="hud-tip" tabindex="0">व्याख्या<span class="hud-tip-text">लग्न = पूर्व क्षितिज पर इसी क्षण उदित होता क्रान्तिवृत्त-बिन्दु — उज्जयिनी के अक्षांश-देशान्तर से प्रति-क्षण computed; लगभग हर 2 घण्टे में राशि बदलती है।</span></span>
+        </div>
+      </div>
+
+      <div class="glass-card panel">
+        <button type="button" class="btn-panel-minimize" onclick="toggleSectionCollapse(this)">— Minimize</button>
+        <div class="panel-body-collapsible">
+          <div class="metric-title">4. घटी / पल / प्राण (Ghaṭī / pala / prāṇa)</div>
+          <div class="metric-val num-display" id="ghatiVal">—</div>
+          <div class="metric-sub" id="ghatiSub">civil IST radix</div>
+          <span class="hud-tip" tabindex="0">व्याख्या<span class="hud-tip-text">1 दिन = 60 घटी · 1 घटी = 60 पल · 1 पल = 6 प्राण (कुल 21,600 प्राण = श्वास-संख्या)। यह गिनती नागरिक IST मध्यरात्रि से है।</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="viewport-panel">
+      <div class="viewport-header">
+        <div>
+          <strong style="color: var(--gold-bright);">Observatory HUD · live sphuṭa</strong>
+          <span style="color: #64748b; margin-left: 8px;">Ujjain · ShunyaMath</span>
+        </div>
+        <div style="color: var(--cyan-soft);" id="pointsCountLabel">phase (λ, dλ/dt)</div>
+      </div>
+
+      <canvas id="telemetryCanvas"></canvas>
+
+      <div class="control-bar">
+        <div class="ctrl-group">
+          <label>Viz:</label>
+          <button id="btnViz0" type="button" class="shader-btn active">1. Phase</button>
+          <button id="btnViz1" type="button" class="shader-btn">2. Nakṣatra</button>
+          <button id="btnViz2" type="button" class="shader-btn">3. Ghaṭī field</button>
+        </div>
+        <span class="hud-tip" tabindex="0" style="margin-top:0;">व्याख्या<span class="hud-tip-text">Phase-space: x-अक्ष = भोगांश λ (0–360°) · y-अक्ष = दैनिक गति dλ/dt। बीच की सुनहरी रेखा शून्य-गति है — उसके नीचे ग्रह वक्री, ऊपर मार्गी।</span></span>
+      </div>
+    </div>
+
+    <div class="glass-card panel">
+      <button type="button" class="btn-panel-minimize" onclick="toggleSectionCollapse(this)">— Minimize</button>
+      <div class="panel-body-collapsible">
+        <div class="metric-title" style="margin-bottom:10px;">canonicalGrahaModel · नौ ग्रह (9 grahas)</div>
+        <div class="graha-grid" id="grahaGrid"></div>
+        <span class="hud-tip" tabindex="0">व्याख्या<span class="hud-tip-text">ऋण-गति = वक्री — पृथ्वी से देखने पर ग्रह उल्टा चलता दिखता है (तात्कालिक गति &lt; 0)। धन-गति = मार्गी। हर ग्रह-cell पर hover करो — उसकी अपनी व्याख्या मिलेगी।</span></span>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="hud-foot">
+    <a class="hud-back" href="index.html">← वेधशाला</a>
+    <span>गणना घोषित है — भाग्य नहीं। · computation declared, not fate · <a href="mailto:api@bharatephemeris.com">api@bharatephemeris.com</a></span>
+  </footer>
+
+  <script>
+    (function () {
+      const LAT = 23.1765;
+      const LON = 75.7885;
+      const TZ = 5.5;
+      const M = globalThis.ShunyaMath;
+      const RASHI = (M && M.RASHI_SA) || ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"];
+      const NAK = (M && M.NAKSHATRA_NAMES) || [];
+      const HOT = { surya: 1, candra: 1, chandra: 1 };
+      const COL = {
+        surya: [1.00, 0.84, 0.18, 1],
+        candra: [0.86, 0.90, 0.95, 1],
+        chandra: [0.86, 0.90, 0.95, 1],
+        mangala: [0.91, 0.42, 0.29, 1],
+        budha: [0.60, 0.65, 0.70, 1],
+        guru: [0.85, 0.63, 0.36, 1],
+        shukra: [0.91, 0.84, 0.66, 1],
+        shani: [0.49, 0.55, 0.63, 1],
+        rahu: [0.54, 0.47, 0.78, 1],
+        ketu: [0.78, 0.47, 0.63, 1]
+      };
+      // व्याख्या (VYAKHYA) — स्थिर परिभाषा-strings, कोई नई गणना नहीं
+      const GRAHA_TIP = {
+        surya: "सूर्यः (Sun) — सदा मार्गी; राशि-मास व अयन इसी के स्फुट से गिने जाते हैं।",
+        candra: "चन्द्रः (Moon) — सबसे तीव्र ग्रह; नक्षत्र व तिथि इसी की गति से बनते हैं।",
+        chandra: "चन्द्रः (Moon) — सबसे तीव्र ग्रह; नक्षत्र व तिथि इसी की गति से बनते हैं।",
+        mangala: "मङ्गलः (Mars) — बाह्य ग्रह; पृथ्वी के आगे निकलने पर वक्री दिखता है।",
+        budha: "बुधः (Mercury) — सूर्य के सबसे निकट; वर्ष में कई बार वक्री दिखता है।",
+        guru: "गुरुः (Jupiter) — मन्द बाह्य ग्रह; लगभग एक राशि प्रति वर्ष चलता है।",
+        shukra: "शुक्रः (Venus) — भीतरी ग्रह; सूर्य से सीमित दूरी में आगे-पीछे झूलता है।",
+        shani: "शनिः (Saturn) — सबसे मन्द दृश्य ग्रह; एक राशि में लगभग ढाई वर्ष।",
+        rahu: "राहुः — चन्द्रपथ व क्रान्तिवृत्त का आरोही पात (node); सदा वक्री गिना जाता है।",
+        ketu: "केतुः — अवरोही पात, राहु से ठीक 180° पर।"
+      };
+
+      const canvas = document.getElementById("telemetryCanvas");
+      const ctx2 = canvas.getContext("2d");
+      const btnViz0 = document.getElementById("btnViz0");
+      const btnViz1 = document.getElementById("btnViz1");
+      const btnViz2 = document.getElementById("btnViz2");
+      const shaderBtns = [btnViz0, btnViz1, btnViz2];
+      const MODE_LABEL = ["phase (λ, dλ/dt)", "27×4 nakṣatra · pada", "5-ring ghaṭī field"];
+
+      let vizMode = 0;
+      let live = {
+        jd: 0,
+        p: null,
+        grahas: [],
+        vels: [],
+        nak: 0,
+        pada: 1,
+        ghati: 0,
+        pala: 0,
+        prana: 0
+      };
+      const TRAIL = 220;
+      const trails = [];
+      for (let i = 0; i < 9; i++) trails.push([]);
+
+      function rashiOf(deg) {
+        return RASHI[Math.floor(((Number(deg) % 360) + 360) % 360 / 30) % 12] || "—";
+      }
+
+      function nowJd() {
+        const utc = new Date(Date.now() + TZ * 3600000);
+        const date = utc.toISOString().slice(0, 10);
+        const time = utc.toISOString().slice(11, 19);
+        if (!M || typeof M.gregorianToJulianDay !== "function") return null;
+        return { date: date, time: time, jd: M.gregorianToJulianDay(date, time, TZ) };
+      }
+
+      function civilRadix() {
+        const ms = (Date.now() + TZ * 3600000) % 86400000;
+        return {
+          ghati: Math.floor(ms / 1440000),
+          pala: Math.floor((ms % 1440000) / 24000),
+          prana: Math.floor((ms % 24000) / 4000)
+        };
+      }
+
+      function setText(id, v) {
+        const n = document.getElementById(id);
+        if (n) n.textContent = v;
+      }
+
+      function mapPhase(lam, speed, maxSp) {
+        const x = (((((lam % 360) + 360) % 360) / 360) * 1.9) - 0.95;
+        const y = maxSp > 0 ? (speed / maxSp) * 0.95 : Math.sin(lam * Math.PI / 180) * 0.95;
+        return [x, y];
+      }
+
+      function refreshMath() {
+        if (!M || typeof M.panchangExtended !== "function") return;
+        const stamp = nowJd();
+        if (!stamp) return;
+        let p, grahas, vels;
+        try {
+          p = M.panchangExtended(stamp.jd, LAT, LON, TZ);
+          grahas = M.canonicalGrahaModel ? M.canonicalGrahaModel(stamp.jd) : [];
+          vels = (typeof M.computePlanetaryVelocities === "function")
+            ? M.computePlanetaryVelocities(stamp.jd)
+            : [];
+        } catch (err) {
+          console.error(err);
+          return;
+        }
+        live.jd = stamp.jd;
+        live.p = p;
+        live.grahas = grahas;
+        live.vels = vels;
+        live.nak = Number(p.nakshatraIndex) || 0;
+        live.pada = Number(p.nakshatraPada) || 1;
+
+        const sun = grahas.find(function (g) { return g.key === "surya"; });
+        const moon = grahas.find(function (g) { return g.key === "candra" || g.key === "chandra"; });
+        const suryaDeg = sun ? Number(sun.longitude) : Number(p.surya);
+        const chandraDeg = moon ? Number(moon.longitude) : Number(p.chandra);
+        setText("suryaVal", suryaDeg.toFixed(4) + "°");
+        setText("suryaSub", rashiOf(suryaDeg) + " · sphuṭa");
+        setText("chandraVal", chandraDeg.toFixed(4) + "°");
+        setText("chandraSub", (p.nakshatraName || NAK[live.nak] || "—") + " · pada " + live.pada);
+        setText("lagnaVal", Number(p.lagna).toFixed(4) + "°");
+        setText("lagnaSub", (p.lagnaRashiSa || rashiOf(p.lagna)) + " · Ujjain");
+
+        const grid = document.getElementById("grahaGrid");
+        if (grid) {
+          grid.innerHTML = grahas.slice(0, 9).map(function (g, i) {
+            const v = vels[i];
+            const spd = v ? v.speedDegDay : Math.sin(Number(g.longitude) * Math.PI / 180);
+            const mot = v ? v.motionState : "";
+            const hot = HOT[g.key] ? " hot" : "";
+            const tip = GRAHA_TIP[g.key] || "";
+            return "<div class='graha-cell" + hot + "' title='" + tip + "'><div class='g-name'>" + (g.sa || g.key) + "</div><div class='g-val'>" + Number(g.longitude).toFixed(3) + "°</div><div class='g-sub'>" + (v ? spd.toFixed(4) + "°/d · " + mot : "sin λ") + "</div></div>";
+          }).join("");
+        }
+
+        if (globalThis.FieldGL && globalThis.FieldGL.push) {
+          globalThis.FieldGL.push({
+            ghati: live.ghati,
+            vighati: live.pala,
+            tithi: p.tithiIndex,
+            nak: live.nak,
+            masa: p.sauraMasaIndex,
+            lambda: grahas.slice(0, 9).map(function (g) { return Number(g.longitude) || 0; })
+          });
+        }
+
+        if (!trails[0].length) seedTrails();
+      }
+
+      function seedTrails() {
+        const grahas = live.grahas;
+        const vels = live.vels;
+        if (!grahas.length) return;
+        let maxSp = 1;
+        if (vels.length) {
+          maxSp = Math.max(1, ...vels.map(function (v) { return Math.abs(v.speedDegDay); }));
+        }
+        for (let i = 0; i < 9; i++) {
+          const g = grahas[i];
+          if (!g) continue;
+          const lam0 = Number(g.longitude);
+          const spd = vels[i] ? vels[i].speedDegDay : Math.sin(lam0 * Math.PI / 180);
+          const buf = [];
+          for (let t = TRAIL - 1; t >= 0; t--) {
+            const lam = vels[i]
+              ? (((lam0 - spd * (t / TRAIL) * 0.85) % 360) + 360) % 360
+              : lam0 + t * 1.6;
+            buf.push(mapPhase(lam, vels[i] ? spd : Math.sin(lam * Math.PI / 180), maxSp));
+          }
+          trails[i] = buf;
+        }
+      }
+
+      function advanceTrails() {
+        const grahas = live.grahas;
+        const vels = live.vels;
+        if (!grahas.length) return;
+        let maxSp = 1;
+        if (vels.length) {
+          maxSp = Math.max(1, ...vels.map(function (v) { return Math.abs(v.speedDegDay); }));
+        }
+        for (let i = 0; i < 9; i++) {
+          const g = grahas[i];
+          if (!g) continue;
+          const lam = Number(g.longitude);
+          const spd = vels[i] ? vels[i].speedDegDay : Math.sin(lam * Math.PI / 180);
+          const pt = mapPhase(lam, spd, maxSp);
+          const buf = trails[i];
+          const last = buf[buf.length - 1];
+          if (!last || last[0] !== pt[0] || last[1] !== pt[1]) {
+            buf.push(pt);
+            if (buf.length > TRAIL) buf.shift();
+          }
+        }
+      }
+
+      function paintGhati() {
+        const c = civilRadix();
+        live.ghati = c.ghati;
+        live.pala = c.pala;
+        live.prana = c.prana;
+        setText("ghatiVal", c.ghati + " / " + c.pala + " / " + c.prana);
+        setText("ghatiSub", "घटी " + c.ghati + " · पल " + c.pala + " · प्राण " + c.prana);
+      }
+
+      function setVizMode(mode, activeBtn) {
+        vizMode = mode;
+        shaderBtns.forEach(function (b) { if (b) b.classList.remove("active"); });
+        if (activeBtn) activeBtn.classList.add("active");
+        setText("pointsCountLabel", MODE_LABEL[mode] || "");
+      }
+
+      if (btnViz0) btnViz0.addEventListener("click", function () { setVizMode(0, btnViz0); });
+      if (btnViz1) btnViz1.addEventListener("click", function () { setVizMode(1, btnViz1); });
+      if (btnViz2) btnViz2.addEventListener("click", function () { setVizMode(2, btnViz2); });
+
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.max(2, Math.floor((canvas.clientWidth || 640) * dpr));
+        const h = Math.max(2, Math.floor(Math.max(canvas.clientHeight, 480) * dpr));
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+        }
+        return { w: w, h: h, dpr: dpr };
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      function toPx(x, y, w, h) {
+        return [(x + 1) * 0.5 * w, (1 - y) * 0.5 * h];
+      }
+
+      function rgb(rgba) {
+        return "rgba(" + Math.round(rgba[0] * 255) + "," + Math.round(rgba[1] * 255) + "," + Math.round(rgba[2] * 255) + "," + rgba[3] + ")";
+      }
+
+      function drawPhase(w, h) {
+        ctx2.strokeStyle = "rgba(95,211,232,.22)";
+        ctx2.lineWidth = 1;
+        ctx2.beginPath();
+        ctx2.moveTo(w / 2, 0); ctx2.lineTo(w / 2, h);
+        ctx2.stroke();
+        for (let i = 0; i <= 12; i++) {
+          const x = (i / 12) * w;
+          ctx2.fillStyle = "rgba(234,201,123,.12)";
+          ctx2.fillRect(x, 0, 1, h);
+        }
+        // zero-velocity रेखा (dλ/dt = 0): नीचे वक्री, ऊपर मार्गी
+        ctx2.strokeStyle = "rgba(234,201,123,.4)";
+        ctx2.setLineDash([5, 4]);
+        ctx2.beginPath();
+        ctx2.moveTo(0, h / 2); ctx2.lineTo(w, h / 2);
+        ctx2.stroke();
+        ctx2.setLineDash([]);
+        ctx2.fillStyle = "rgba(234,201,123,.75)";
+        ctx2.font = "600 11px ui-monospace,monospace";
+        ctx2.fillText("मार्गी ↑", 8, h / 2 - 10);
+        ctx2.fillText("वक्री ↓", 8, h / 2 + 18);
+        for (let i = 0; i < 9; i++) {
+          const bufT = trails[i];
+          const g = live.grahas[i];
+          const key = g ? g.key : "";
+          const rgba = COL[key] || [0, 0.95, 0.99, 0.85];
+          const hot = HOT[key];
+          if (!bufT.length) continue;
+          ctx2.beginPath();
+          bufT.forEach(function (pt, t) {
+            const p = toPx(pt[0], pt[1], w, h);
+            if (t === 0) ctx2.moveTo(p[0], p[1]);
+            else ctx2.lineTo(p[0], p[1]);
+          });
+          ctx2.strokeStyle = rgb([rgba[0], rgba[1], rgba[2], hot ? 0.95 : 0.55]);
+          ctx2.lineWidth = hot ? 2.4 : 1.3;
+          ctx2.stroke();
+          const last = toPx(bufT[bufT.length - 1][0], bufT[bufT.length - 1][1], w, h);
+          ctx2.beginPath();
+          ctx2.arc(last[0], last[1], hot ? 12 : 8, 0, Math.PI * 2);
+          ctx2.fillStyle = rgb(rgba);
+          ctx2.shadowColor = rgb([rgba[0], rgba[1], rgba[2], 0.9]);
+          ctx2.shadowBlur = hot ? 18 : 12;
+          ctx2.fill();
+          ctx2.shadowBlur = 0;
+          ctx2.fillStyle = "rgba(220,230,234,.88)";
+          ctx2.font = "600 11px ui-monospace,monospace";
+          const lx = Math.min(last[0] + 11, w - 64);
+          const ly = Math.max(last[1] - 9, 14);
+          ctx2.fillText((g && (g.sa || g.key)) || "", lx, ly);
+        }
+        ctx2.fillStyle = "rgba(234,201,123,.55)";
+        ctx2.font = "600 11px ui-monospace,monospace";
+        ctx2.fillText("λ →", w - 36, h / 2 - 8);
+        ctx2.fillText("dλ/dt", 8, 16);
+      }
+
+      function drawGrid(w, h) {
+        const pad = 16;
+        const cw = (w - pad * 2) / 27;
+        const ch = (h - pad * 2) / 4;
+        for (let col = 0; col < 27; col++) {
+          for (let row = 0; row < 4; row++) {
+            const x = pad + col * cw;
+            const y = pad + row * ch;
+            const on = (col === live.nak && (row + 1) === live.pada);
+            ctx2.fillStyle = on ? "rgba(255,212,46,.92)" : "rgba(20,107,122,.55)";
+            ctx2.fillRect(x + 2, y + 2, cw - 4, ch - 4);
+            if (row === 0) {
+              ctx2.fillStyle = on ? "#1a1408" : "rgba(220,230,234,.7)";
+              ctx2.font = "600 9px ui-monospace,monospace";
+              ctx2.textAlign = "center";
+              ctx2.fillText(String(col + 1), x + cw / 2, y + 14);
+            }
+          }
+        }
+        ctx2.textAlign = "left";
+      }
+
+      function drawRings(w, h) {
+        const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.46;
+        const rings = [
+          { count: 12, hot: live.p && live.p.sauraMasaIndex != null ? live.p.sauraMasaIndex : 0, r: 0.95 },
+          { count: 30, hot: live.p && live.p.tithiIndex != null ? live.p.tithiIndex : 0, r: 0.78 },
+          { count: 27, hot: live.nak, r: 0.62 },
+          { count: 60, hot: live.ghati, r: 0.46 },
+          { count: 60, hot: live.pala, r: 0.30 }
+        ];
+        rings.forEach(function (ring) {
+          for (let i = 0; i < ring.count; i++) {
+            const ang = (i / ring.count) * Math.PI * 2 - Math.PI / 2;
+            const x = cx + Math.cos(ang) * R * ring.r;
+            const y = cy + Math.sin(ang) * R * ring.r;
+            const near = Math.abs(((i - ring.hot + ring.count * 0.5) % ring.count) - ring.count * 0.5);
+            const gold = Math.exp(-near * near * 0.18);
+            ctx2.beginPath();
+            ctx2.arc(x, y, gold > 0.55 ? 5 : 2.2, 0, Math.PI * 2);
+            ctx2.fillStyle = gold > 0.4 ? "rgba(255,212,46,.95)" : "rgba(31,140,158,.7)";
+            ctx2.fill();
+          }
+        });
+        ctx2.beginPath();
+        ctx2.arc(cx, cy, 8, 0, Math.PI * 2);
+        ctx2.fillStyle = "#ffd46e";
+        ctx2.fill();
+      }
+
+      let frames = 0;
+      let fpsT = performance.now();
+
+      function render(now) {
+        requestAnimationFrame(render);
+        frames++;
+        if (now - fpsT >= 1000) {
+          const fps = (frames * 1000) / (now - fpsT);
+          setText("fpsBadge", fps.toFixed(1) + " FPS");
+          frames = 0;
+          fpsT = now;
+        }
+        advanceTrails();
+        if (!ctx2) return;
+        const dim = resizeCanvas();
+        ctx2.setTransform(1, 0, 0, 1, 0, 0);
+        ctx2.fillStyle = "#02040a";
+        ctx2.fillRect(0, 0, dim.w, dim.h);
+        if (vizMode === 0) drawPhase(dim.w, dim.h);
+        else if (vizMode === 1) drawGrid(dim.w, dim.h);
+        else drawRings(dim.w, dim.h);
+      }
+
+      paintGhati();
+      refreshMath();
+      setInterval(refreshMath, 1000);
+      setInterval(paintGhati, 250);
+      requestAnimationFrame(render);
+    })();
+  </script>    <script>if("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+
+<script>
+// WCAG 2.1 AAA Keyboard Focus & Escape Key Management
+(function() {
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+            // Dismiss open drawers/modals/popups
+            var activeDrawers = document.querySelectorAll('.drawer[data-open=1], .drawer.active, [role=dialog][data-open=1], .modal-backdrop');
+            activeDrawers.forEach(function(el) {
+                if (el.style) el.style.display = 'none';
+                el.removeAttribute('data-open');
+                el.classList.remove('active');
+            });
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
+

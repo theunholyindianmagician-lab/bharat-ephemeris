@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0e182e"/>
+      <stop offset="100%" stop-color="#070c18"/>
+    </radialGradient>
+    <linearGradient id="goldGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe066"/>
+      <stop offset="100%" stop-color="#ffb800"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#80effe"/>
+      <stop offset="100%" stop-color="#00d8f6"/>
+    </linearGradient>
+    <filter id="glow512">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer Frame -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad512)" stroke="#1a2642" stroke-width="8"/>
+
+  <!-- Celestial Grid Rings -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#cyanGrad512)" stroke-width="4" stroke-dasharray="12 12" opacity="0.4"/>
+  <circle cx="256" cy="256" r="148" fill="none" stroke="url(#goldGrad512)" stroke-width="5" stroke-dasharray="20 10" opacity="0.7"/>
+  <circle cx="256" cy="256" r="90" fill="none" stroke="#00d8f6" stroke-width="3" opacity="0.5"/>
+
+  <!-- Crosshairs -->
+  <line x1="256" y1="36" x2="256" y2="476" stroke="#1a2642" stroke-width="4"/>
+  <line x1="36" y1="256" x2="476" y2="256" stroke="#1a2642" stroke-width="4"/>
+
+  <!-- Central Star / Kamakhya Origin Symbol -->
+  <polygon points="256,170 274,230 334,256 274,282 256,342 238,282 178,256 238,230" fill="url(#goldGrad512)" filter="url(#glow512)"/>
+  <circle cx="256" cy="256" r="22" fill="#ffffff"/>
+
+  <!-- Planets & Orbits -->
+  <circle cx="404" cy="256" r="18" fill="#00d8f6" filter="url(#glow512)"/>
+  <circle cx="256" cy="108" r="14" fill="#ff3d00"/>
+  <circle cx="120" cy="310" r="16" fill="#00e676"/>
+  <circle cx="340" cy="370" r="12" fill="#e040fb"/>
+
+  <!-- Title Text -->
+  <text x="256" y="440" font-family="sans-serif" font-weight="900" font-size="28" fill="#f0f4f8" text-anchor="middle" letter-spacing="4">BHARAT EPHEMERIS</text>
+</svg>
